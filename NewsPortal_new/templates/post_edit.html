@@ -1,0 +1,21 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+<h1>Пост</h1>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    {% if 'delete' in request.path or 'edit' in request.path  %}
+    {% elif 'article' in request.path %}
+        <input id="id_p_type" name="p_type" value= "Article" type="hidden" >
+    {% elif 'news' in request.path %}
+        <input id="id_p_type" name="p_type" value= 'News' type="hidden" >
+    {% endif %}
+
+    <input type="submit" value="Save" />
+</form>
+
+
+{% endblock content %}

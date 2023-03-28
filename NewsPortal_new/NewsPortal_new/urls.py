@@ -20,11 +20,10 @@ from .views import PostDetails
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
-    # Делаем так, чтобы все адреса из нашего приложения (simpleapp/urls.py)
-    # подключались к главному приложению с префиксом products/.
     path('news/', include('NewsPortal.urls')),
-    # pk — это первичный ключ товара, который будет выводиться у нас в шаблон
-    # int — указывает на то, что принимаются только целочисленные значения
-    path('<int:pk>', PostDetails.as_view()),
+    path('articles/', include('NewsPortal.urls')),
+    path('<int:pk>/', include('NewsPortal.urls2')),
+
+    #path('news/search', include('NewsPortal.urls')),
 
 ]

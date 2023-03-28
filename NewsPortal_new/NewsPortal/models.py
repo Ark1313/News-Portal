@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
-from django.core.validators import MinValueValidator
+from django.urls import reverse
+
 
 class Author(models.Model):
     a_username = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -22,17 +23,19 @@ class Author(models.Model):
     # sum_rate_coment_post - суммарный рейтинг всех комментариев к статьям автора.
 
     def __str__(self):
-        return self.a_username
+        return str(self.a_username)
 
 
 class Category(models.Model):
     category = models.CharField(max_length=20, unique=True)  # Уникальное поле категорий
     cat_post = models.ManyToManyField('Post', through='PostCategory')   # связь многие ко многим со Статьей
 
+    def __str__(self):
+        return self.category
 
 class Post(models.Model):
     choise = [
-        ('Post', 'Статья'),
+        ('Article', 'Статья'),
         ('News', 'Новость'),
     ]
     p_category = models.ManyToManyField('Category', through='PostCategory')     # связь многие ко многим с Категорией
@@ -42,7 +45,7 @@ class Post(models.Model):
     p_create_date = models.DateTimeField(auto_now_add=True)     # дата время добавления
     p_update_date = models.DateTimeField(auto_now=True)     # дата время обновления
     p_rate = models.IntegerField(default=0)    # рейтинг статьи
-    p_type = models.CharField(max_length=20, choices=choise, default='Post')
+    p_type = models.CharField(max_length=20, choices=choise, default='Article')
     # выбор статья или новость (по умолчанию Статья)
 
     def like(self):   # повышает лайк
@@ -72,6 +75,9 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.p_name.title()}: {self.p_post[:120]}"
+
+    def get_absolute_url(self):
+        return reverse('post_detail', args=[str(self.id)])
 
 class PostCategory(models.Model):
     pc_post = models.ForeignKey(Post, on_delete=models.CASCADE)
