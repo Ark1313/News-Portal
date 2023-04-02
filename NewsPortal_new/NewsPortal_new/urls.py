@@ -23,6 +23,9 @@ urlpatterns = [
     path('news/', include('NewsPortal.urls')),
     path('articles/', include('NewsPortal.urls')),
     path('<int:pk>/', include('NewsPortal.urls2')),
+    # path("accounts/", include("accounts.urls")),
+    # path("accounts/", include("django.contrib.auth.urls")),
+    path("accounts/", include("allauth.urls")),
 
     #path('news/search', include('NewsPortal.urls')),
 

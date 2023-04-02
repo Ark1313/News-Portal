@@ -1,11 +1,13 @@
 # Импортируем класс, который говорит нам о том,
 # что в этом представлении мы будем выводить список объектов из БД
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from NewsPortal.models import Author, Post, Comment
 from datetime import datetime
 from .filters import PostFilter
 from .forms import PostCreateForm
 from django.urls import reverse_lazy
+
 
 
 class PostList(ListView):
@@ -63,8 +65,10 @@ class PostDetails(DetailView):
 
 
 # Добавляем новое представление для создания постов.
-class PostCreate(CreateView):
-    # Указываем нашу разработанную форму
+class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = ('newsportal.add_post',)
+    raise_exception = True
+        # Указываем нашу разработанную форму
     form_class = PostCreateForm
     # модель постов
     model = Post
@@ -73,14 +77,17 @@ class PostCreate(CreateView):
 
 
 # Добавляем представление для изменения поста.
-class PostEdit(UpdateView):
+class PostEdit(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = ('newsportal.change_post',)
+    raise_exception = True
     form_class = PostCreateForm
     model = Post
     template_name = 'post_edit.html'
 
 
 # Представление удаляющее пост.
-class PostDelete(DeleteView):
+class PostDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = ('newsportal.delete_post',)
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('post_list')
