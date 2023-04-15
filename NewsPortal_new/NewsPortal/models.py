@@ -80,8 +80,11 @@ class Post(models.Model):
         return reverse('post_detail', args=[str(self.id)])
 
 class PostCategory(models.Model):
-    pc_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    pc_category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    pc_post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    pc_category = models.ForeignKey('Category', on_delete=models.CASCADE)
+
+    class Meta:
+        auto_created = Category
 
 
 class Comment(models.Model):
@@ -101,3 +104,18 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.com_auth}: {self.c_post[:120]}"
+
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+    category = models.ForeignKey(
+        to='Category',
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+    )
+

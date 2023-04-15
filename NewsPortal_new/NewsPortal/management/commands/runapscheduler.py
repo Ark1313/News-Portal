@@ -11,7 +11,7 @@ from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 from django.template.loader import render_to_string
 
-from NewsPortal.models import Post, User, Subscription
+from NewsPortal.models import Post, User, Subscription, Category
 
 
 logger = logging.getLogger(__name__)
@@ -21,22 +21,17 @@ def my_job():
 
     today = datetime.datetime.now()
     today_minus_7 = today - datetime.timedelta(days=7)
-    postes = Post.objects.filter(p_create_date__gte=today_minus_7)
-    print(f'Postes {postes}')
-    categories = set(postes.values_list('category', flat=True))
-    print(f'Categories {categories}')
-    subscribers = set(Subscription.objects.filter(category__in=categories).values_list('user', flat=True))
-    print(f'Subscribers {subscribers}')
-    subscribers_email = set(User.objects.filter(id__in=subscribers).values_list('email', flat=True))
-    print(f'Subscribers_email {subscribers_email}')
-
+    subscribers = set(Subscription.objects.order_by('user').values_list('user', flat=True))
+    subscribers_email = User.objects.filter(id__in=subscribers).values_list('id', 'username', 'email')
     for mail in subscribers_email:
-        print(f'email {mail}')
-        print(type(mail))
-
+        user_category = set(Subscription.objects.filter(user=mail[0]).values_list('category', flat=True))
+        catname = set(Category.objects.filter(id__in=user_category).values_list('category', flat=True))
+        postes = Post.objects.filter(p_create_date__gte=today_minus_7, p_category__in=user_category)
         html_content = render_to_string(
            'daily_post.html',
             {
+                'catname': catname,
+                'username': mail[1],
                 'link': settings.LOGIN_REDIRECT_URL,
                 'posts': postes,
             }
@@ -65,8 +60,7 @@ class Command(BaseCommand):
 
         scheduler.add_job(
             my_job,
-            trigger=CronTrigger(),
-            # trigger=CronTrigger(day_of_week="fri", hour="18", minute="00"),
+            trigger=CronTrigger(day_of_week="fri", hour="18", minute="00"),
             id="my_job",  # The `id` assigned to each job MUST be unique
             max_instances=1,
             replace_existing=True,

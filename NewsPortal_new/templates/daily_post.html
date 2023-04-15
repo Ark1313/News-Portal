@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Новые статьи</title>
+</head>
+<body>
+    <h2> Добрый день, {{ username }}!
+    За последнюю неделю в Ваших избранных категориях({{ catname }}) добавились новые статьи:</h2>
+    {% for post2 in posts %}
+        <li><a href=" {{ link }}{{ post2.get_absolute_url }}">{{ post2.p_name }}</a></li>
+    {% endfor %}
+</body>
+</html>
